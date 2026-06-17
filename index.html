@@ -41,7 +41,6 @@
         .add-expense input:focus{border-color:#4a4a4a}
         .add-expense input::placeholder{color:#444}
 
-        /* Checkbox Grid Selectors */
         .check-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));gap:6px;background:#0D0D0D;border:1px solid #2a2a2a;border-radius:14px;padding:10px;max-height:110px;overflow-y:auto}
         .check-item{display:flex;align-items:center;gap:6px;font-size:.75rem;color:#aaa;cursor:pointer;padding:4px 6px;border-radius:8px;background:#141414;border:1px solid #222;user-select:none;transition:.15s}
         .check-item input{display:none}
@@ -189,7 +188,6 @@
             return;
         }
 
-        // Generate Payers Choice
         payersGrid.innerHTML = ppl.map((p, i) => `
             <label class="check-item payer-item" id="p-label-${i}">
                 <input type="checkbox" data-name="${p.n}" onchange="toggleCheck(this, 'p-label-${i}', 'payer-mode')">
@@ -197,15 +195,13 @@
             </label>
         `).join('');
 
-        // Generate Beneficiaries Choice
         beneficiariesGrid.innerHTML = ppl.map((p, i) => `
-            <label class="check-item beneficiary-item active" id="b-label-${i}">
-                <input type="checkbox" data-name="${p.n}" checked onchange="toggleCheck(this, 'b-label-${i}')">
+            <label class="check-item beneficiary-item" id="b-label-${i}">
+                <input type="checkbox" data-name="${p.n}" onchange="toggleCheck(this, 'b-label-${i}')">
                 <span>${p.n}</span>
             </label>
         `).join('');
 
-        // Default: dynamic helper checking if we have at least 2 people to run bills
         eAdd.disabled = ppl.length < 2;
     };
 
@@ -261,9 +257,7 @@
             const payerShare = e.amt / e.p.length;
             const beneficiaryShare = e.amt / e.f.length;
             
-            // Add credit to all payers selected
             e.p.forEach(n => { if (bal[n] !== undefined) bal[n] += payerShare; });
-            // Deduct split balance from all beneficiaries selected
             e.f.forEach(n => { if (bal[n] !== undefined) bal[n] -= beneficiaryShare; });
         });
         
@@ -331,7 +325,6 @@
         const d = eDesc.value.trim();
         const a = parseFloat(eAmt.value);
         
-        // Find checked options from checkboxes
         const selectedPayers = Array.from(payersGrid.querySelectorAll('input:checked')).map(el => el.getAttribute('data-name'));
         const selectedBeneficiaries = Array.from(beneficiariesGrid.querySelectorAll('input:checked')).map(el => el.getAttribute('data-name'));
         
@@ -344,7 +337,6 @@
         eDesc.value = ''; 
         eAmt.value = '';
         
-        // Reset check boxes to defaults
         updateSelectionGrids();
         render();
     };

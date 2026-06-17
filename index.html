@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>settle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#0D0D0D;font-family:'Inter',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px;color:#f5f5f5}
+        .app{max-width:480px;width:100%;display:flex;flex-direction:column;gap:24px}
+        .header{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+        .header h1{font-size:1.4rem;font-weight:600;color:#f0f0f0;letter-spacing:-.5px}
+        .header h1 i{color:#6a8;margin-right:8px}
+        .header .badge{background:#1a1a1a;padding:4px 14px;border-radius:30px;font-size:.7rem;color:#666;border:1px solid #2a2a2a}
+        
+        .add-person{display:flex;gap:8px}
+        .add-person input{flex:1;background:#141414;border:1px solid #2a2a2a;border-radius:30px;padding:10px 18px;font-family:'Inter';font-size:.9rem;color:#f0f0f0;outline:0;transition:.2s}
+        .add-person input:focus{border-color:#4a4a4a}
+        .add-person input::placeholder{color:#444}
+        .add-person button{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:30px;padding:10px 18px;color:#888;cursor:pointer;transition:.2s;font-family:'Inter';font-size:.9rem}
+        .add-person button:hover{background:#2a2a2a;color:#ccc}
+        
+        .people{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0}
+        .person{background:#141414;border:1px solid #2a2a2a;border-radius:30px;padding:6px 14px 6px 18px;display:flex;align-items:center;gap:10px;font-size:.85rem;color:#ccc;transition:.2s}
+        .person .color{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+        .person .name{font-weight:500}
+        .person .del{background:0;border:0;color:#555;cursor:pointer;padding:2px 4px;border-radius:12px;font-size:.7rem;transition:.2s}
+        .person .del:hover{color:#e8b0b0;background:#2a1a1a}
+        
+        .add-expense{display:flex;flex-direction:column;gap:10px;background:#141414;border-radius:20px;padding:16px;border:1px solid #222}
+        .add-expense .row{display:flex;gap:8px;flex-wrap:wrap}
+        .add-expense input,.add-expense select{background:#0D0D0D;border:1px solid #2a2a2a;border-radius:30px;padding:8px 16px;font-family:'Inter';font-size:.85rem;color:#f0f0f0;outline:0;transition:.2s;flex:1;min-width:80px}
+        .add-expense input:focus,.add-expense select:focus{border-color:#4a4a4a}
+        .add-expense input::placeholder{color:#444}
+        .add-expense select{appearance:none;cursor:pointer}
+        .add-expense select option{background:#0D0D0D}
+        .add-expense .btn-add{background:#1a2a1a;border:1px solid #2a4a2a;border-radius:30px;padding:8px 20px;color:#90d090;cursor:pointer;transition:.2s;font-family:'Inter';font-size:.85rem;font-weight:500;white-space:nowrap}
+        .add-expense .btn-add:hover{background:#1a3a1a}
+        
+        .expenses{display:flex;flex-direction:column;gap:6px}
+        .expense{background:#141414;border-radius:16px;padding:12px 16px;border:1px solid #222;display:flex;justify-content:space-between;align-items:center;animation:fadeIn .2s ease}
+        .expense .info{display:flex;flex-direction:column;gap:2px;flex:1}
+        .expense .info .desc{font-size:.9rem;color:#e0e0e0;font-weight:500}
+        .expense .info .meta{font-size:.7rem;color:#666;display:flex;gap:12px;align-items:center}
+        .expense .info .meta .paid{color:#888}
+        .expense .info .meta .for{color:#555}
+        .expense .info .meta .for span{color:#888}
+        .expense .amount{font-weight:600;font-size:.95rem;color:#f0f0f0;margin:0 12px}
+        .expense .del-e{background:0;border:0;color:#555;cursor:pointer;padding:4px 8px;border-radius:16px;font-size:.7rem;transition:.2s}
+        .expense .del-e:hover{color:#e8b0b0;background:#2a1a1a}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+        
+        .summary{background:#141414;border-radius:20px;padding:16px 20px;border:1px solid #222;display:flex;flex-direction:column;gap:12px}
+        .summary .total{display:flex;justify-content:space-between;font-size:.9rem;color:#888;padding-bottom:8px;border-bottom:1px solid #1a1a1a}
+        .summary .total span:last-child{color:#f0f0f0;font-weight:600}
+        .summary .balances{display:flex;flex-direction:column;gap:6px}
+        .summary .balance{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:12px;font-size:.85rem}
+        .summary .balance .who{display:flex;align-items:center;gap:10px}
+        .summary .balance .who .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+        .summary .balance .who .nm{color:#ccc;font-weight:500}
+        .summary .balance .amt{font-weight:600}
+        .summary .balance .amt.pos{color:#6a8}
+        .summary .balance .amt.neg{color:#e8b0b0}
+        .summary .balance .amt.zero{color:#555}
+        .summary .settle{display:flex;flex-direction:column;gap:4px;padding-top:8px;border-top:1px solid #1a1a1a}
+        .summary .settle .row{display:flex;justify-content:space-between;font-size:.8rem;color:#666;padding:2px 8px}
+        .summary .settle .row .from{color:#888}
+        .summary .settle .row .to{color:#888}
+        .summary .settle .row .samt{color:#aaa;font-weight:500}
+        .summary .empty{text-align:center;color:#444;font-size:.8rem;padding:12px 0}
+        
+        .clear-all{background:0;border:1px solid #2a2a2a;border-radius:30px;padding:8px 16px;color:#555;cursor:pointer;font-family:'Inter';font-size:.75rem;transition:.2s;align-self:flex-end}
+        .clear-all:hover{background:#2a1a1a;border-color:#4a2a2a;color:#e8b0b0}
+        
+        @media(max-width:480px){.add-expense .row{flex-direction:column}.add-expense .row .btn-add{width:100%}}
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1><i class="fas fa-hand-holding-usd"></i> </h1>
+        <span class="badge"><i class="far fa-user"></i> <span id="pCount">0</span></span>
+    </div>
+
+    <div class="add-person">
+        <input type="text" id="pName" placeholder="add person..." maxlength="20" />
+        <button id="pAdd"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div class="people" id="people"></div>
+
+    <div class="add-expense">
+        <div class="row">
+            <input type="text" id="eDesc" placeholder="what for?" />
+            <input type="number" id="eAmt" placeholder="0.00" min="0" step="0.01" />
+        </div>
+        <div class="row">
+            <select id="ePaid"></select>
+            <select id="eFor"></select>
+            <button class="btn-add" id="eAdd"><i class="fas fa-plus"></i> add</button>
+        </div>
+    </div>
+
+    <div class="expenses" id="expenses"></div>
+
+    <div class="summary" id="summary">
+        <div class="total">
+            <span>total spent</span>
+            <span id="totalSpent">$0.00</span>
+        </div>
+        <div class="balances" id="balances"></div>
+        <div class="settle" id="settle"></div>
+    </div>
+
+    <button class="clear-all" id="clearAll"><i class="fas fa-trash-alt"></i> clear all</button>
+</div>
+
+<script>
+(()=>{
+    let ppl=[], exps=[], colors=['#6a8','#e8b0b0','#8ac','#e8c87a','#c8a0e8','#7ac8c8','#e8a070','#70b0e8'];
+    const $=id=>document.getElementById(id);
+    const pName=$('pName'), pAdd=$('pAdd'), people=$('people'), pCount=$('pCount');
+    const eDesc=$('eDesc'), eAmt=$('eAmt'), ePaid=$('ePaid'), eFor=$('eFor'), eAdd=$('eAdd');
+    const expenses=$('expenses'), summary=$('summary'), totalSpent=$('totalSpent'), balances=$('balances'), settle=$('settle');
+    const clearAll=$('clearAll');
+
+    const col=(i)=>colors[i%colors.length];
+    const fmt=(n)=>n.toFixed(2);
+    const total=()=>exps.reduce((s,e)=>s+e.amt,0);
+
+    const renderPpl=()=>{
+        people.innerHTML=ppl.map((p,i)=>`
+            <div class="person">
+                <span class="color" style="background:${p.c}"></span>
+                <span class="name">${p.n}</span>
+                <button class="del" onclick="remP(${i})"><i class="fas fa-times"></i></button>
+            </div>
+        `).join('');
+        pCount.textContent=ppl.length;
+        updateSelects();
+        render();
+    };
+
+    window.remP=(i)=>{ppl.splice(i,1); renderPpl()};
+
+    const updateSelects=()=>{
+        const opts=ppl.map(p=>`<option value="${p.n}">${p.n}</option>`).join('');
+        ePaid.innerHTML=opts;
+        eFor.innerHTML=opts;
+    };
+
+    const render=()=>{
+        expenses.innerHTML=exps.slice().reverse().map((e,i)=>{
+            const idx=exps.length-1-i;
+            return `<div class="expense">
+                <div class="info">
+                    <div class="desc">${e.d}</div>
+                    <div class="meta">
+                        <span class="paid">${e.p} paid</span>
+                        <span class="for">for <span>${e.f.join(', ')}</span></span>
+                    </div>
+                </div>
+                <div class="amount">$${fmt(e.amt)}</div>
+                <button class="del-e" onclick="remE(${idx})"><i class="fas fa-times"></i></button>
+            </div>`;
+        }).join('');
+        if(!exps.length)expenses.innerHTML='<div style="text-align:center;color:#444;font-size:.8rem;padding:16px 8px">no expenses yet</div>';
+        updateSummary();
+    };
+
+    window.remE=(i)=>{exps.splice(i,1); render()};
+
+    const updateSummary=()=>{
+        const t=total();
+        totalSpent.textContent=`$${fmt(t)}`;
+        if(!ppl.length || !exps.length){
+            balances.innerHTML='<div class="empty">add people & expenses to see balances</div>';
+            settle.innerHTML='';
+            return;
+        }
+        const bal={};
+        ppl.forEach(p=>bal[p.n]=0);
+        exps.forEach(e=>{
+            const share=e.amt/e.f.length;
+            bal[e.p]-=e.amt;
+            e.f.forEach(n=>bal[n]+=share);
+        });
+        const sorted=Object.entries(bal).sort((a,b)=>a[1]-b[1]);
+        balances.innerHTML=sorted.map(([n,b])=>{
+            const cls=b>0.005?'pos':b<-0.005?'neg':'zero';
+            const p=ppl.find(x=>x.n===n);
+            return `<div class="balance">
+                <div class="who"><span class="dot" style="background:${p?p.c:'#555'}"></span><span class="nm">${n}</span></div>
+                <span class="amt ${cls}">${b>0?'+':''}$${fmt(b)}</span>
+            </div>`;
+        }).join('');
+
+        const owes=[];
+        const pos=Object.entries(bal).filter(([_,b])=>b>0.01).sort((a,b)=>b[1]-a[1]);
+        const neg=Object.entries(bal).filter(([_,b])=>b<-0.01).sort((a,b)=>a[1]-b[1]);
+        let pi=0, ni=0;
+        while(pi<pos.length && ni<neg.length){
+            const [pN,pB]=pos[pi];
+            const [nN,nB]=neg[ni];
+            const amt=Math.min(pB,-nB);
+            if(amt>0.01){
+                owes.push({from:nN,to:pN,amt});
+                pos[pi][1]-=amt;
+                neg[ni][1]+=amt;
+            }
+            if(pos[pi][1]<0.01)pi++;
+            if(neg[ni][1]>-0.01)ni++;
+        }
+        settle.innerHTML=owes.length?owes.map(o=>`
+            <div class="row">
+                <span class="from">${o.from}</span>
+                <span><i class="fas fa-arrow-right" style="color:#444;font-size:.6rem"></i></span>
+                <span class="to">${o.to}</span>
+                <span class="samt">$${fmt(o.amt)}</span>
+            </div>
+        `).join(''):'<div class="empty">all settled!</div>';
+    };
+
+    const addP=()=>{
+        const n=pName.value.trim();
+        if(!n || ppl.some(p=>p.n===n))return;
+        ppl.push({n,c:col(ppl.length)});
+        pName.value='';
+        renderPpl();
+    };
+
+    const addE=()=>{
+        const d=eDesc.value.trim();
+        const a=parseFloat(eAmt.value);
+        const p=ePaid.value;
+        const f=eFor.value;
+        if(!d||!a||a<=0||!p||!f||!ppl.some(x=>x.n===p)||!ppl.some(x=>x.n===f))return;
+        const forPpl=[f];
+        exps.push({d,amt:a,p,for:forPpl});
+        eDesc.value=''; eAmt.value='';
+        render();
+    };
+
+    pAdd.onclick=addP;
+    pName.onkeydown=e=>{if(e.key==='Enter')addP()};
+    eAdd.onclick=addE;
+    eAmt.onkeydown=e=>{if(e.key==='Enter')addE()};
+    eDesc.onkeydown=e=>{if(e.key==='Enter')addE()};
+
+    clearAll.onclick=()=>{
+        if(confirm('clear everything?')){ppl=[]; exps=[]; renderPpl(); render()}
+    };
+
+    renderPpl();
+})()
+</script>
+</body>
+</html>

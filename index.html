@@ -249,7 +249,7 @@
             settle.innerHTML = '';
             return;
         }
-        
+
         const bal = {};
         ppl.forEach(p => bal[p.n] = 0);
         
@@ -271,29 +271,55 @@
             </div>`;
         }).join('');
 
+        const matrix = {};
+        ppl.forEach(p1 => {
+            matrix[p1.n] = {};
+            ppl.forEach(p2 => {
+                matrix[p1.n][p2.n] = 0;
+            });
+        });
+
+        exps.forEach(e => {
+            const amountPerBeneficiary = e.amt / e.f.length;
+
+            e.f.forEach(beneficiary => {
+                e.p.forEach(payer => {
+                    if (beneficiary !== payer) {
+                        matrix[beneficiary][payer] += amountPerBeneficiary / e.p.length;
+                    }
+                });
+            });
+        });
+
         const owes = [];
-        const posCln = Object.entries(bal).filter(([_, b]) => b > 0.01).sort((a, b) => b[1] - a[1]);
-        const negCln = Object.entries(bal).filter(([_, b]) => b < -0.01).sort((a, b) => a[1] - b[1]);
+        const processedPairs = new Set();
+
+        ppl.forEach(p1 => {
+            ppl.forEach(p2 => {
+                if (p1.n !== p2.n) {
+                    const pairKey = [p1.n, p2.n].sort().join('|');
+                    if (!processedPairs.has(pairKey)) {
+                        processedPairs.add(pairKey);
+                        
+                        const p1OwesP2 = matrix[p1.n][p2.n];
+                        const p2OwesP1 = matrix[p2.n][p1.n];
+                        
+                        if (p1OwesP2 > p2OwesP1 + 0.01) {
+                            owes.push({ from: p1.n, to: p2.n, amt: p1OwesP2 - p2OwesP1 });
+                        } else if (p2OwesP1 > p1OwesP2 + 0.01) {
+                            owes.push({ from: p2.n, to: p1.n, amt: p2OwesP1 - p1OwesP2 });
+                        }
+                    }
+                }
+            });
+        });
+
+        const filteredOwes = owes.filter(o => o.amt > 0.01);
         
-        let pi = 0, ni = 0;
-        while (pi < posCln.length && ni < negCln.length) {
-            const [pN, pB] = posCln[pi];
-            const [nN, nB] = negCln[ni];
-            
-            const amt = Math.min(pB, -nB);
-            if (amt > 0.01) {
-                owes.push({ from: nN, to: pN, amt });
-                posCln[pi][1] -= amt;
-                negCln[ni][1] += amt;
-            }
-            if (posCln[pi][1] < 0.01) pi++;
-            if (negCln[ni][1] > -0.01) ni++;
-        }
-        
-        if (owes.length) {
+        if (filteredOwes.length) {
             settle.innerHTML = `
                 <div class="settle-label"><i class="fas fa-handshake"></i> who pays whom</div>
-                ${owes.map(o => `
+                ${filteredOwes.map(o => `
                     <div class="row">
                         <span class="from">${o.from}</span>
                         <span class="arrow"><i class="fas fa-arrow-right"></i></span>
@@ -337,7 +363,11 @@
         eDesc.value = ''; 
         eAmt.value = '';
         
-        updateSelectionGrids();
+        payersGrid.querySelectorAll('input').forEach(el => el.checked = false);
+        beneficiariesGrid.querySelectorAll('input').forEach(el => el.checked = false);
+        payersGrid.querySelectorAll('.check-item').forEach(el => el.classList.remove('active', 'payer-mode'));
+        beneficiariesGrid.querySelectorAll('.check-item').forEach(el => el.classList.remove('active'));
+        
         render();
     };
 
